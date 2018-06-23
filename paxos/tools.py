@@ -11,6 +11,16 @@ class ProposalID:
         return ProposalID._id
 
 
+class IncrBy:
+    _id = 0
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def incrBy():
+        IncrBy._id = IncrBy._id + 1
+        return IncrBy._id
+
 
 if __name__ == "__main__":
     p1 = ProposalID()

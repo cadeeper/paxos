@@ -5,6 +5,7 @@ MSG_ACCEPT = 2
 MSG_PROMISE = 3
 MSG_ACCEPTED = 4
 MSG_START = 200
+MSG_NACK = 500
 
 type_map = {
     MSG_PREPARE: "prepare",
@@ -12,6 +13,7 @@ type_map = {
     MSG_PROMISE: "promise",
     MSG_ACCEPTED: "accepted",
     MSG_START: "start",
+    MSG_NACK: "nack"
 }
 
 

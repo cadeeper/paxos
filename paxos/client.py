@@ -1,7 +1,22 @@
-from paxos.connection import Messenger
+import random
 import socket
+import threading
+import time
 
+from paxos.connection import Messenger
 from paxos.message import *
+from paxos.tools import IncrBy
+
+incr = IncrBy()
+
+
+def start(messenger, port):
+    i = 0
+    while i < 3:
+        messenger.send_to((socket.gethostname(), port), Message(MSG_START, '001', proposal_value=incr.incrBy()))
+        time.sleep(random.Random().randint(1, 3))
+        i+=1
+
 
 if __name__ == "__main__":
     config = {
@@ -11,6 +26,9 @@ if __name__ == "__main__":
     }
 
     messenger = Messenger(config)
-    messenger.send_to((socket.gethostname(), 10000), Message(MSG_START, '001'))
-    messenger.send_to((socket.gethostname(), 10001), Message(MSG_START, '001'))
-    messenger.send_to((socket.gethostname(), 10002), Message(MSG_START, '001'))
+    threading.Thread(target=start, args=(messenger, 10000)).start()
+    threading.Thread(target=start, args=(messenger, 10001)).start()
+    threading.Thread(target=start, args=(messenger, 10002)).start()
+    time.sleep(1000)
+
+

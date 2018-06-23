@@ -1,7 +1,7 @@
 import socket
 import threading
 import pickle
-
+import logging
 
 class Messenger:
     receive_callback = None
@@ -22,26 +22,34 @@ class Messenger:
         threading.Thread(target=self.accept).start()
 
     def accept(self):
-        print('start listen : %s' % str(self.addr))
+        logging.info('start listen : %s' % str(self.addr))
         while self.running:
             client, addr = self.server_socket.accept()
-            print('%s connect from %s' % (str(self.config), str(addr)))
-            data = client.recv(2048)
-            if data:
-                msg = pickle.loads(data)
-                print('[%s]接收消息:[%s],来源地址:%s' % (self.config['uid'], str(msg), addr))
-                self.receive_callback(msg)
-            client.close()
+            logging.debug('%s connect from %s' % (str(self.config), str(addr)))
+            threading.Thread(target=self.do_accept, args=(client, addr)).start()
+
+
+    def do_accept(self, client, addr):
+        data = client.recv(2048)
+        if data:
+            msg = pickle.loads(data)
+            logging.debug('[%s]接收消息:[%s],来源地址:%s' % (self.config['uid'], str(msg), addr))
+            self.receive_callback(msg)
+        client.close()
+
 
     def send_to(self, addr, msg):
-        print('[%s]发送消息:[%s],接收地址:%s' % (self.config['uid'], str(msg), str(addr)))
-        client_socket = socket.socket()
-        client_socket.connect(addr)
-        data = pickle.dumps(msg)
-        client_socket.send(data)
+        logging.debug('[%s]发送消息:[%s],接收地址:%s' % (self.config['uid'], str(msg), str(addr)))
+        try:
+            client_socket = socket.socket()
+            client_socket.connect(addr)
+            data = pickle.dumps(msg)
+            client_socket.send(data)
+        except Exception as e:
+            logging.error(e)
 
     def register_callback(self, callback):
         self.receive_callback = callback
 
     def receive(self, msg):
-        print(msg)
+        logging.debug(msg)
